@@ -1,15 +1,21 @@
 from fastapi import FastAPI, HTTPException, Query
+from fastapi.responses import JSONResponse
 from youtube_transcript_api import YouTubeTranscriptApi
+from youtube_transcript_api.formatters import TextFormatter
 import re
 import requests
 
+# Initialize FastAPI app
 app = FastAPI(title="YouTube Transcript API", version="1.0.0")
 
 
 @app.get("/")
 def read_root():
+    """Root endpoint - API information"""
     return {
         "message": "YouTube Transcript API",
+        "status": "running",
+        "version": "1.0.0",
         "endpoints": {
             "get_transcript": "/api/transcript/{video_id}",
             "get_transcript_with_lang": "/api/transcript-{language_code}/{video_id}",
@@ -20,8 +26,14 @@ def read_root():
             "spanish_transcript": "/api/transcript-es/dQw4w9WgXcQ",
             "english_transcript": "/api/transcript-en/dQw4w9WgXcQ",
             "available_languages": "/api/transcript_languages/dQw4w9WgXcQ"
-        }
+        },
+        "documentation": "/docs"
     }
+
+@app.get("/health")
+def health_check():
+    """Health check endpoint"""
+    return {"status": "healthy", "service": "YouTube Transcript API"}
 
 @app.get("/api/transcript/{video_id}")
 def get_transcript(video_id: str, proxy: str = Query(None, description="Proxy URL (optional)")):
@@ -213,10 +225,5 @@ def get_available_languages(video_id: str, proxy: str = Query(None, description=
         else:
             raise HTTPException(status_code=500, detail=f"Error retrieving languages: {error_msg}")
 
-# Health check endpoint
-@app.get("/health")
-def health_check():
-    return {"status": "healthy", "service": "YouTube Transcript API"}
-
-# Required for Vercel
+# This is crucial for Vercel - must be at the end
 handler = app
