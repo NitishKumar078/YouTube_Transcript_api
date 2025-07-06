@@ -1,4 +1,4 @@
-fastapi
-youtube-transcript-api
-requests
-Uvicorn
+fastapi==0.110.2
+youtube-transcript-api==0.6.2
+requests==2.31.0
+uvicorn==0.29.0
